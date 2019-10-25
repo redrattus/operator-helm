@@ -1,0 +1,28 @@
+{{- if .Values.openstackExporter.enabled }}
+apiVersion: {{ printf "%s/v1" (.Values.prometheusOperator.crdApiGroup | default "monitoring.coreos.com") }}
+kind: ServiceMonitor
+metadata:
+  name: {{ template "prometheus-operator.fullname" . }}-openstack-exporter
+  labels:
+    app: {{ template "prometheus-operator.fullname" . }}-openstack-exporter
+{{ include "prometheus-operator.labels" . | indent 4 }}
+spec:
+  jobLabel: {{ .Values.openstackExporter.jobLabel }}
+  selector:
+    matchLabels:
+      app: prometheus-opeenstack-exporter
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: metrics
+    {{- if .Values.openstackExporter.serviceMonitor.interval }}
+    interval: {{ .Values.openstackExporter.serviceMonitor.interval }}
+    {{- end }}
+{{- if .Values.openstackExporter.serviceMonitor.metricRelabelings }}
+    metricRelabelings:
+{{ tpl (toYaml .Values.openstackExporter.serviceMonitor.metricRelabelings | indent 4) . }}
+{{- end }}
+{{- if .Values.openstackExporter.serviceMonitor.relabelings }}
+    relabelings:
+{{ toYaml .Values.openstackExporter.serviceMonitor.relabelings | indent 4 }}
+{{- end }}
+{{- end }}

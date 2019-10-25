@@ -1,0 +1,28 @@
+{{- if .Values.processExporter.enabled }}
+apiVersion: {{ printf "%s/v1" (.Values.prometheusOperator.crdApiGroup | default "monitoring.coreos.com") }}
+kind: ServiceMonitor
+metadata:
+  name: {{ template "prometheus-operator.fullname" . }}-process-exporter
+  labels:
+    app: {{ template "prometheus-operator.name" . }}-process-exporter
+{{ include "prometheus-operator.labels" . | indent 4 }}
+spec:
+  jobLabel: {{ .Values.processExporter.jobLabel }}
+  selector:
+    matchLabels:
+      app: prometheus-process-exporter
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: metrics
+    {{- if .Values.processExporter.serviceMonitor.interval }}
+    interval: {{ .Values.processExporter.serviceMonitor.interval }}
+    {{- end }}
+{{- if .Values.processExporter.serviceMonitor.metricRelabelings }}
+    metricRelabelings:
+{{ tpl (toYaml .Values.processExporter.serviceMonitor.metricRelabelings | indent 4) . }}
+{{- end }}
+{{- if .Values.processExporter.serviceMonitor.relabelings }}
+    relabelings:
+{{ toYaml .Values.processExporter.serviceMonitor.relabelings | indent 4 }}
+{{- end }}
+{{- end }}
