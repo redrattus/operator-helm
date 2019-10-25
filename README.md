@@ -8,9 +8,9 @@ You can use below extended operator charts.
 
 | Operator Name | Features |
 |---------------|----------|
-| Prometheus Operator | * Support new exporters (openstack, process, bird...)\\ * Deploy Push-gateway |
-| Rook | * Make general rook chart to support multi storage type\\ * Configure Cluster, BlockDevice, ObjectStorage, so on |
-| Elasticsearch cloud k8s | * Deploy kibana \\ * Configure Elasticsearch |
+| Prometheus Operator | * Support new exporters (openstack, process, bird...) <br/> * Deploy Push-gateway |
+| Rook | * Make general rook chart to support multi storage type <br/> * Configure Cluster, BlockDevice, ObjectStorage, so on |
+| Elasticsearch cloud k8s | * Deploy kibana <br/> * Configure Elasticsearch |
 
 ## How to use
 ```
