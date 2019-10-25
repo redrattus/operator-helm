@@ -1,0 +1,219 @@
+# Default values for rook-operator
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+rookOperator:
+  ## storage type
+  storageType: ceph
+
+  image:
+    prefix: rook
+    repository: rook/ceph
+    tag: v1.1.1
+    pullPolicy: IfNotPresent
+
+  hyperkube:
+    repository: k8s.gcr.io/hyperkube
+    tag: v1.7.12
+    pullPolicy: IfNotPresent
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  nodeSelector:
+  # Constraint rook-ceph-operator Deployment to nodes with label `disktype: ssd`.
+  # For more info, see https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  #  disktype: ssd
+
+  # Tolerations for the rook-ceph-operator to allow it to run on nodes with particular taints
+  tolerations: []
+
+  # Whether rook watches its current namespace for CRDs or the entire cluster, defaults to false
+  currentNamespaceOnly: false
+
+  # Interval at which to get the ceph status and update the cluster custom resource status
+  cephStatusCheckInterval: "60s"
+
+  mon:
+    healthCheckInterval: "45s"
+    monOutTimeout: "600s"
+
+  ## Annotations to be added to pod
+  annotations: {}
+
+  ## LogLevel can be set to: TRACE, DEBUG, INFO, NOTICE, WARNING, ERROR or CRITICAL
+  logLevel: INFO
+
+  ## If true, create & use RBAC resources
+  ##
+  rbacEnable: true
+
+  ## If true, create & use PSP resources
+  ##
+  pspEnable: true
+
+  ## Settings for whether to disable the drivers or other daemons if they are not
+  ## needed
+  csi:
+    enableRbdDriver: true
+    enableCephfsDriver: true
+    enableGrpcMetrics: true
+    cephfsGrpcMetricsPort: 5091
+    #kubeletDirPath: /var/lib/kubelet
+    #cephcsi:
+      #image: quay.io/cephcsi/cephcsi:v1.2.0
+    #registrar:
+      #image: quay.io/k8scsi/csi-node-driver-registrar:v1.1.0
+    #provisioner:
+      #image: quay.io/k8scsi/csi-provisioner:v1.3.0
+    #snapshotter:
+      #image: quay.io/k8scsi/csi-snapshotter:v1.2.0
+    #attacher:
+      #image: quay.io/k8scsi/csi-attacher:v1.2.0
+
+  enableFlexDriver: true
+  enableDiscoveryDaemon: true
+
+  ## Rook Agent configuration
+  ## toleration: NoSchedule, PreferNoSchedule or NoExecute
+  ## tolerationKey: Set this to the specific key of the taint to tolerate
+  ## tolerations: Array of tolerations in YAML format which will be added to agent deployment
+  ## nodeAffinity: Set to labels of the node to match
+  ## flexVolumeDirPath: The path where the Rook agent discovers the flex volume plugins
+  ## libModulesDirPath: The path where the Rook agent can find kernel modules
+  # agent:
+  #   toleration: NoSchedule
+  #   tolerationKey: key
+  #   tolerations:
+  #   - key: key
+  #     operator: Exists
+  #     effect: NoSchedule
+  #   nodeAffinity: key1=value1,value2; key2=value3
+  #   mountSecurityMode: Any
+  ## For information on FlexVolume path, please refer to https://rook.io/docs/rook/master/flexvolume.html
+  #   flexVolumeDirPath: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/
+  #   libModulesDirPath: /lib/modules
+  #   mounts: mount1=/host/path:/container/path,/host/path2:/container/path2
+
+  ## Rook Discover configuration
+  ## toleration: NoSchedule, PreferNoSchedule or NoExecute
+  ## tolerationKey: Set this to the specific key of the taint to tolerate
+  ## tolerations: Array of tolerations in YAML format which will be added to agent deployment
+  ## nodeAffinity: Set to labels of the node to match
+  # discover:
+  #   toleration: NoSchedule
+  #   tolerationKey: key
+  #   tolerations:
+  #   - key: key
+  #     operator: Exists
+  #     effect: NoSchedule
+  #   nodeAffinity: key1=value1,value2; key2=value3
+
+  # In some situations SELinux relabelling breaks (times out) on large filesystems, and doesn't work with cephfs ReadWriteMany volumes (last relabel wins).
+  # Disable it here if you have similar issues.
+  # For more details see https://github.com/rook/rook/issues/2417
+  enableSelinuxRelabeling: true
+
+  # Writing to the hostPath is required for the Ceph mon and osd pods. Given the restricted permissions in OpenShift with SELinux,
+  # the pod must be running privileged in order to write to the hostPath volume, this must be set to true then.
+  hostpathRequiresPrivileged: false
+
+  # Disable automatic orchestration when new devices are discovered.
+  disableDeviceHotplug: false
+
+  # imagePullSecrets option allow to pull docker images from private docker registry. Option will be passed to all service accounts.
+  # imagePullSecrets:
+  # - name: my-registry-secret
+
+
+## CephCluster Setting
+cephCluster:
+  enabled: true
+  image: ceph/ceph:v14.2.4-20190917
+  hostNetwork: false
+  mon:
+    count: 1
+    allowMultiplePerNode: false
+    # mgr:
+    #   modules:
+
+  dashboard:
+    enabled: true
+    # urlPrefix: /ceph-dashboard
+    # serve the dashboard at the given port.
+    # port: 8443
+    # serve the dashboard using SSL
+    ssl: true
+
+  monitoring:
+    enabled: false
+
+  rbdMirroring:
+    workers: 0
+
+  # The example under 'all' would have all services scheduled on kubernetes nodes labeled with 'role=storage-node' and
+  # tolerate taints with a key of 'storage-node'.
+#  placement:
+#    all:
+#      nodeAffinity:
+#        requiredDuringSchedulingIgnoredDuringExecution:
+#          nodeSelectorTerms:
+#          - matchExpressions:
+#            - key: role
+#              operator: In
+#              values:
+#              - storage-node
+#      podAffinity:
+#      podAntiAffinity:
+#      tolerations:
+#      - key: storage-node
+#        operator: Exists
+#    mon:
+#    osd:
+#    mgr:
+
+  storage:
+    useAllNodes: true
+    useAllDevices: true
+    deviceFilter: vdb
+    # location
+    config:
+      # The default and recommended storeType is dynamically set to bluestore for devices and filestore for directories.
+      # Set the storeType explicitly only if it is required not to use the default.
+      storeType: bluestore
+      # metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
+      # databaseSizeMB: "1024" # uncomment if the disks are smaller than 100 GB
+      # journalSizeMB: "1024"  # uncomment if the disks are 20 GB or smaller
+      # osdsPerDevice: "1" # this value can be overridden at the node or device level
+      # encryptedDevice: "true" # the default value for this option is "false"
+    # Cluster level list of directories to use for filestore-based OSD storage. If uncomment, this example would create an OSD under the dataDirHostPath.
+    #directories:
+    #- path: /var/lib/rook
+
+    # Individual nodes and their config can be specified as well, but 'useAllNodes' above must be set to false. Then, only the named
+    # nodes below will be used as storage resources.  Each node's 'name' field should match their 'kubernetes.io/hostname' label.
+    nodes:
+#    - name: "taco-aio"
+#      directories: # specific directories to use for storage can be specified for each node
+#      - path: "/rook/storage-dir"
+#      resources:
+#        limits:
+#          cpu: "500m"
+#          memory: "1024Mi"
+#        requests:
+#          cpu: "500m"
+#          memory: "1024Mi"
+#      config: # configuration can be specified at the node level which overrides the cluster level config
+#        storeType: filestore
+#    - name: "172.17.4.301"
+#      deviceFilter: "^sd."
+    - name: "taco-aio"
+      devices:
+      - name: "vdb"
+        config:
+          osdsPerDevice: "1"
+          storageType: bluestore
