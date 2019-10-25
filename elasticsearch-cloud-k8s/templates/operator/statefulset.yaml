@@ -1,0 +1,56 @@
+{{- if and .Values.elasticsearchOperator.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "eck.name" . }}-operator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    control-plane: {{ template "eck.name" . }}-operator
+spec:
+  selector:
+    matchLabels:
+      control-plane: {{ template "eck.name" . }}-operator
+  serviceName: {{ template "eck.name" . }}-operator
+  template:
+    metadata:
+      labels:
+        control-plane: {{ template "eck.name" . }}-operator
+    spec:
+      serviceAccountName: {{ template "eck.name" . }}-operator
+      containers:
+      - image: {{ .Values.images.eckOperator }}
+        name: manager
+        args: ["manager", "--operator-roles", "all", "--enable-debug-logs=false"]
+        env:
+          - name: OPERATOR_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: WEBHOOK_SECRET
+            value: webhook-server-secret
+          - name: WEBHOOK_PODS_LABEL
+            value: {{ template "eck.name" . }}-operator
+          - name: OPERATOR_IMAGE
+            value: {{ .Values.images.eckOperator }}
+        resources:
+          limits:
+            cpu: 1
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 9876
+          name: webhook-server
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/cert
+          name: cert
+          readOnly: true
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-secret
+{{- end }}

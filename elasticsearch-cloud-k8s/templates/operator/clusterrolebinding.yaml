@@ -1,0 +1,14 @@
+{{- if and .Values.elasticsearchOperator.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "eck.name" . }}-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "eck.name" . }}-operator
+subjects:
+- kind: ServiceAccount
+  name: {{ template "eck.name" . }}-operator
+  namespace: {{ .Release.Namespace }}
+{{- end }}

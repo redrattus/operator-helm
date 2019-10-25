@@ -1,0 +1,10 @@
+{{- if and .Values.elasticsearchOperator.enabled .Values.elasticsearchOperator.cleanupBeforeInstall }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "eck.name" . }}-cleanup
+  namespace: {{ .Release.Namespace }}
+  anotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded
+{{- end }}

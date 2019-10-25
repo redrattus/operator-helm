@@ -1,0 +1,15 @@
+# Default values for elasticsearch-cloud-k8s
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+images:
+  eckOperator: docker.elastic.co/eck/eck-operator:0.9.0
+
+elasticsearchOperator:
+  enabled: true
+  
+  ## Create CRDs
+  createCustomResource: true
+
+  ## Remove CRDs before installation
+  cleanupBeforeInstall: false
