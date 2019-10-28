@@ -1,0 +1,20 @@
+{{- if .Values.pushgateway.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: pushgateway
+  name: pushgateway
+spec:
+  selector:
+    app: pushgateway
+  type: {{ .Values.pushgateway.service.type }}
+  ports:
+  - name: scrape
+    protocol: TCP
+    port: 9091
+    {{- if eq .Values.pushgateway.service.type "NodePort" }}
+    nodePort: {{ .Values.pushgateway.service.port }}
+    {{- end }}
+    targetPort: {{ .Values.pushgateway.service.targetPort }}
+{{- end }}

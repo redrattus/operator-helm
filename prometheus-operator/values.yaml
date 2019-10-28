@@ -1698,3 +1698,17 @@ processExporter:
     metricRelabelings: []
  
     relabelings: []
+
+pushgateway:
+  enabled: true
+  replicas: 1
+
+  image: prom/pushgateway
+
+  imagePullPolicy: IfNotPresent
+
+  ## Configuration for pushgateway service
+  service:
+    type: NodePort
+    port: 30091
+    targetPort: 9091

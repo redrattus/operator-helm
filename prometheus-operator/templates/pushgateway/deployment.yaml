@@ -1,0 +1,23 @@
+{{- if .Values.pushgateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pushgateway
+spec:
+  replicas: {{ .Values.pushgateway.replicas }}
+  selector:
+    matchLabels:
+      app: pushgateway
+  template:
+    metadata:
+      labels:
+        app: pushgateway
+    spec:
+      containers:
+      - name: pushgateway
+        image: {{ .Values.pushgateway.image }}
+        imagePullPolicy: {{ .Values.pushgateway.imagePullPolicy }}
+        ports:
+        - name: web
+          containerPort: 9091
+{{- end }}
