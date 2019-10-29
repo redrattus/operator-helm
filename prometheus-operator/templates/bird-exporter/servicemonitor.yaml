@@ -1,0 +1,27 @@
+{{- if .Values.birdExporter.enabled }}
+apiVersion: {{ printf "%s/v1" (.Values.prometheusOperator.crdApiGroup | default "monitoring.coreos.com") }}
+kind: ServiceMonitor
+metadata:
+  name: {{ template "prometheus-operator.fullname" . }}-bird-exporter
+  labels:
+    app: {{ template "prometheus-operator.name" . }}-bird-exporter
+{{ include "prometheus-operator.labels" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-bird-exporter
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: metrics
+    {{- if .Values.birdExporter.serviceMonitor.interval }}
+    interval: {{ .Values.birdExporter.serviceMonitor.interval }}
+    {{- end }}
+{{- if .Values.birdExporter.serviceMonitor.metricRelabelings }}
+    metricRelabelings:
+{{ tpl (toYaml .Values.birdExporter.serviceMonitor.metricRelabelings | indent 4) . }}
+{{- end }}
+{{- if .Values.birdExporter.serviceMonitor.relabelings }}
+    relabelings:
+{{ toYaml .Values.birdExporter.serviceMonitor.relabelings | indent 4 }}
+{{- end }}
+{{- end }}
