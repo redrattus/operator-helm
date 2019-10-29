@@ -9,7 +9,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: prometheus-bird-exporter
+      app: bird-exporter
       release: {{ .Release.Name }}
   endpoints:
   - port: metrics
